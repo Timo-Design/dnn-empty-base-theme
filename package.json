@@ -3,8 +3,8 @@
   "version": "0.0.2",
   "description": "A dnn based theme",
   "scripts": {
-    "start": "gulp",
-    "build": "gulp build"
+    "start": "gulp --gulpfile _build/gulpfile.js",
+    "build": "gulp build --gulpfile _build/gulpfile.js"
   },
   "devDependencies": {
     "del": "^6.1.1",
