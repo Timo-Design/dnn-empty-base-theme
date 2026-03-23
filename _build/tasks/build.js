@@ -13,6 +13,10 @@ const terser = require('gulp-terser');
 const { distSkinPath, distContainerPath } = require('../helpers');
 const { config, localConfig } = require('../config');
 
+
+const less = require('gulp-less');
+
+
 /**
  * Build skins to dist
  */
@@ -33,9 +37,34 @@ function buildContainersToDist() {
  * Build SCSS to CSS
  */
 function buildScss() {
+  if (!fs.existsSync('src/scss')) {
+    console.log('No src/scss folder found, skipping SCSS build.');
+    return Promise.resolve();
+  }
   const generatedFileWarning = config.generatedFileWarning || '';
   return src('src/scss/**/*.scss')
     .pipe(sass().on('error', sass.logError))
+    .pipe(cleanCSS())
+    .pipe(header(generatedFileWarning + '\n'))
+    .pipe(rename('skin.css'))
+    .pipe(dest(distSkinPath()));
+}
+
+
+/**
+ * Build LESS to CSS
+ */
+function buildLess() {
+  if (!fs.existsSync('src/less')) {
+    console.log('No src/less folder found, skipping LESS build.');
+    return Promise.resolve();
+  }
+  const generatedFileWarning = config.generatedFileWarning || '';
+  return src('src/less/skin.less')
+    .pipe(less().on('error', function(err) {
+      console.error(err.message);
+      this.emit('end');
+    }))
     .pipe(cleanCSS())
     .pipe(header(generatedFileWarning + '\n'))
     .pipe(rename('skin.css'))
@@ -74,6 +103,7 @@ module.exports = {
   buildSkinsToDist,
   buildContainersToDist,
   buildScss,
+  buildLess,
   buildJs,
   copyVendors,
 };
